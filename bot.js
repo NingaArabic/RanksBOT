@@ -1,5 +1,7 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
+var prefix = "=";
+
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -64,6 +66,77 @@ msg.channel.send(`كردت بروبوت\`${Price}\` لديك 4 دقائق لتح
   })
 })
 })})})
+///
+}
+if(cmd === `${prefix}used`){
+  let args = msg.content.split(" ").slice(1)[0];
+  if(!args) {  
+    let embed = new Discord.RichEmbed()
+    .setColor("#42f4f4")
+    .setTitle(`:x: - **الرجاء ادخال كود الهدية** \`${prefix}used <Key>\``)
+    msg.reply(embed).then( z => z.delete(3000));
+    return
+}
+  let embed = new Discord.RichEmbed()
+.setTitle(`**جاري التحقق من الكود**`)
+.setColor("#42f4f4")
+  msg.reply(embed).then( msgs =>{
+  if(vipKeys[args]){
+    let hav = msg.member.roles.find(`name`, vipKeys[args].name);
+    if(hav){
+    let embed = new Discord.RichEmbed()
+    .setTitle(`:x: - **انت تمتلك هذه الرتبة مسبقًا**  \`${vipKeys[args].name}\``)
+    .setColor("#42f4f4")
+    msgs.edit(embed)
+    return
+    }
+    let embed = new Discord.RichEmbed()
+    .setTitle(`:tada: - **مبروك تم اعطائك رتبة** \`${vipKeys[args].name}\``)
+    .setColor("#42f4f4")
+    msgs.edit(embed)
+    msg.member.addRole(vipKeys[args]);
+    delete vipKeys[args]
+    save()
+  }else{
+    let embed = new Discord.RichEmbed()
+    .setTitle(`:x: - **الكود غير صيحيح أو انه مستعمل من قبل**`)
+    .setColor("#42f4f4")
+    msgs.edit(embed)
+  }});
+}
+});
+ 
+function genKey(msg,role){
+  var randomkeys = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var gift = "";
+  for (var y = 0; y < 16; y++) {   ///16
+    gift +=  `${randomkeys.charAt(Math.floor(Math.random() * randomkeys.length))}`;
+  }
+  vipKeys[gift] = role;
+  let embed = new Discord.RichEmbed()
+  .setColor("#42f4f4")
+  .setTitle(`:ok_hand: - **تم ارسآل الكود على الخاص**`);
+  msg.reply(embed);
+  let embed2= new Discord.RichEmbed()
+  .setAuthor(msg.author.username, msg.author.displayAvatarURL)
+  .setThumbnail(msg.author.avatarURL)
+  .addField("**Key Of Gift**", gift,true)
+  .addField("Role",vipKeys[gift].name,true)
+  .addField("This Key Made by", msg.author, true)
+  .addField("The Room", msg.channel , true)
+  .setTimestamp()
+  .setFooter(client.user.username,client.user.displayAvatarURL)  
+  msg.author.send(embed2);
+  save()
+}
+ 
+function save(){
+  fs.writeFile("./vipKeys.json", JSON.stringify(vipKeys), (err) => {
+    if (err) console.log(err)
+  });
+ 
+}
+
 
 
 client.login(process.env.BOT_TOKEN);
